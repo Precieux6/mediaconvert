@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000";
+const API_URL = "https://mediaconvert-s0nb.onrender.com";
 
 const typeSelect = document.getElementById('typeSelect');
 const formatGroup = document.getElementById('formatGroup');
