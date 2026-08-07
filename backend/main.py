@@ -46,12 +46,31 @@ async def convert_image(file: UploadFile = File(...), target_format: str = Form(
         f.write(await file.read())
         
     try:
+        import pillow_avif
+        import pillow_heif
+        pillow_heif.register_heif_opener()
+
         img = Image.open(input_path)
-        # Conversion RGB nécessaire si enregistrement en JPG depuis un format avec transparence (RGBA)
-        if target_format in ["jpg", "jpeg"] and img.mode in ("RGBA", "LA", "P"):
+        
+        # Déterminer le format exact pour Pillow
+        clean_format = target_format.lstrip('.').upper()
+        if clean_format in ["JPG", "JPEG"]:
+            save_format = "JPEG"
+        elif clean_format == "AVIF":
+            save_format = "AVIF"
+        elif clean_format == "WEBP":
+            save_format = "WEBP"
+        elif clean_format == "PNG":
+            save_format = "PNG"
+        else:
+            save_format = clean_format
+
+        # Conversion RGB si enregistrement en JPEG depuis un format transparent
+        if save_format == "JPEG" and img.mode in ("RGBA", "LA", "P"):
             img = img.convert("RGB")
             
-        img.save(output_path)
+        # Enregistrement du fichier converti
+        img.save(output_path, format=save_format)
         return FileResponse(output_path, filename=f"converted_{file.filename}.{target_format}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors de la conversion de l'image : {str(e)}")
