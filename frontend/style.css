@@ -1,0 +1,125 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: #f0f4f8;
+    color: #333333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 480px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.header h1 {
+    font-size: 2rem;
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+
+.header p {
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+.card {
+    background: #ffffff;
+    padding: 28px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #475569;
+    margin-bottom: 8px;
+}
+
+input[type="file"],
+input[type="text"],
+select {
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background-color: #f8fafc;
+    transition: border-color 0.2s;
+}
+
+input[type="file"]:focus,
+input[type="text"]:focus,
+select:focus {
+    outline: none;
+    border-color: #2563eb;
+    background-color: #ffffff;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #1d4ed8;
+}
+
+button:disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.status-box {
+    margin-top: 20px;
+    padding: 14px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    display: none;
+}
+
+.status-box.info {
+    display: block;
+    background-color: #e0f2fe;
+    color: #0369a1;
+}
+
+.status-box.success {
+    display: block;
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+.status-box.error {
+    display: block;
+    background-color: #fee2e2;
+    color: #b91c1c;
+}

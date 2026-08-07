@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediaConvert - Convertisseur Média Universel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>⚡ MediaConvert</h1>
+            <p>Convertissez rapidement vos images, documents et fichiers multimédias.</p>
+        </header>
+
+        <form id="convertForm" class="card">
+            <div class="form-group">
+                <label for="fileInput">Sélectionner un fichier :</label>
+                <input type="file" id="fileInput" required>
+            </div>
+
+            <div class="form-group">
+                <label for="typeSelect">Type de conversion :</label>
+                <select id="typeSelect">
+                    <option value="image">Image (JPG, PNG, WEBP, AVIF)</option>
+                    <option value="office">Document Office (Excel / PPT) ➔ PDF</option>
+                    <option value="multimedia">Audio / Vidéo (MP4, MP3, WAV, AVI...)</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="formatGroup">
+                <label for="targetFormat">Format Cible :</label>
+                <input type="text" id="targetFormat" placeholder="ex: png, webp, mp3, mp4" value="png">
+            </div>
+
+            <button type="submit" id="submitBtn">Lancer la conversion</button>
+        </form>
+
+        <div id="status" class="status-box"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
