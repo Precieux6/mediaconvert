@@ -1,18 +1,28 @@
 // ========================================
-// Configuration API
+// Configuration API - CORRIGÉ POUR RENDER
 // ========================================
 
-// Détection dynamique de l'API URL
+// IMPORTANT: En production sur Render:
+// - Frontend: https://mediaconvert-xxx.onrender.com
+// - Backend: https://mediaconvert-xxx.onrender.com (même domaine!)
+// - PAS de :8000 en production
+
 const getAPIUrl = () => {
-    // En développement local
+    // Mode développement local
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         return 'http://localhost:8000';
     }
-    // En production (Render)
-    return window.location.origin.replace(/:\d+$/, ':8000');
+    
+    // Mode production (Render, Vercel, etc.)
+    // L'API est sur le MÊME domaine, donc pas besoin d'ajouter :8000
+    return window.location.origin;
 };
 
 const API_URL = getAPIUrl();
+
+// Debug: afficher l'URL utilisée
+console.log('🌐 API URL détecté:', API_URL);
+console.log('🌍 Hostname:', window.location.hostname);
 
 // ========================================
 // Variables globales
@@ -50,10 +60,12 @@ const formatLabels = {
 // ========================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('✅ DOM chargé, initialisation en cours...');
     setupCategoryCards();
     setupDropZone();
     setupFileInput();
     setupFormSubmit();
+    console.log('✅ Initialisation terminée');
 });
 
 // ========================================
@@ -62,8 +74,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function setupCategoryCards() {
     const cards = document.querySelectorAll('.category-card');
+    console.log('📋 Cartes trouvées:', cards.length);
+    
     cards.forEach(card => {
-        card.addEventListener('click', () => selectCategory(card.dataset.type));
+        card.addEventListener('click', () => {
+            console.log('🖱️ Catégorie sélectionnée:', card.dataset.type);
+            selectCategory(card.dataset.type);
+        });
     });
 }
 
@@ -71,6 +88,8 @@ function selectCategory(type) {
     selectedCategory = type;
     selectedFile = null;
     selectedFormat = null;
+    
+    console.log('📝 Sélection catégorie:', type);
     
     // Récupérer les titres
     const titles = {
@@ -103,6 +122,8 @@ function buildFormatOptions(type) {
     const container = document.getElementById('formatOptions');
     container.innerHTML = '';
     
+    console.log('🎨 Construction formats pour:', type);
+    
     if (type === 'office') {
         container.innerHTML = '<div class="format-option active" data-format="pdf">PDF</div>';
         selectedFormat = 'pdf';
@@ -122,11 +143,14 @@ function buildFormatOptions(type) {
         if (formats.length > 0) {
             selectedFormat = formats[0];
             document.getElementById('targetFormat').value = formats[0];
+            console.log('✅ Format par défaut:', selectedFormat);
         }
     }
 }
 
 function selectFormat(format, element) {
+    console.log('🎯 Format sélectionné:', format);
+    
     // Retirer active de tous
     document.querySelectorAll('.format-option').forEach(opt => {
         opt.classList.remove('active');
@@ -169,6 +193,7 @@ function setupDropZone() {
     dropZone.addEventListener('drop', (e) => {
         const files = e.dataTransfer.files;
         if (files.length > 0) {
+            console.log('📥 Fichier déposé:', files[0].name);
             handleFileSelect(files[0]);
         }
     });
@@ -181,6 +206,7 @@ function setupDropZone() {
 function setupFileInput() {
     document.getElementById('fileInput').addEventListener('change', (e) => {
         if (e.target.files.length > 0) {
+            console.log('📁 Fichier sélectionné:', e.target.files[0].name);
             handleFileSelect(e.target.files[0]);
         }
     });
@@ -189,14 +215,12 @@ function setupFileInput() {
 function handleFileSelect(file) {
     selectedFile = file;
     
-    // Valider le type de fichier basique
-    const validMimeTypes = {
-        image: ['image/jpeg', 'image/png', 'image/webp'],
-        office: ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
-                 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'],
-        multimedia: ['audio/mpeg', 'audio/wav', 'video/mp4', 'video/quicktime', 'video/x-msvideo']
-    };
-
+    console.log('✅ Fichier accepté:', {
+        nom: file.name,
+        taille: formatFileSize(file.size),
+        type: file.type
+    });
+    
     // Afficher le formulaire et masquer la drop zone
     document.getElementById('dropZone').style.display = 'none';
     document.getElementById('convertForm').style.display = 'flex';
@@ -215,7 +239,10 @@ function setupFormSubmit() {
 }
 
 async function handleConversion() {
+    console.log('🚀 Début conversion...');
+    
     if (!selectedFile || !selectedFormat) {
+        console.warn('⚠️ Fichier ou format manquant');
         showError('Veuillez sélectionner un fichier et un format.');
         return;
     }
@@ -243,6 +270,15 @@ async function handleConversion() {
             formData.append('target_format', selectedFormat);
         }
 
+        const fullURL = `${API_URL}${endpoint}`;
+        console.log('📡 Requête API:', {
+            url: fullURL,
+            methode: 'POST',
+            fichier: selectedFile.name,
+            format: selectedFormat,
+            categorie: selectedCategory
+        });
+
         // Simuler la progression
         let progress = 10;
         const progressInterval = setInterval(() => {
@@ -254,25 +290,40 @@ async function handleConversion() {
 
         // Appel API avec timeout
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes
+        const timeoutId = setTimeout(() => {
+            controller.abort();
+            console.error('⏱️ Timeout API (5min)');
+        }, 300000); // 5 minutes
 
-        const response = await fetch(`${API_URL}${endpoint}`, {
+        const response = await fetch(fullURL, {
             method: 'POST',
             body: formData,
-            signal: controller.signal
+            signal: controller.signal,
+            headers: {
+                // Ne pas définir Content-Type pour multipart/form-data
+                // Le navigateur le fera automatiquement
+            }
         });
 
         clearTimeout(timeoutId);
         clearInterval(progressInterval);
         progressFill.style.width = '100%';
 
+        console.log('📥 Réponse API:', {
+            status: response.status,
+            statusText: response.statusText,
+            ok: response.ok
+        });
+
         if (!response.ok) {
             let errorMsg = 'Erreur de conversion';
             try {
                 const errData = await response.json();
                 errorMsg = errData.detail || errorMsg;
+                console.error('❌ Erreur serveur détaillée:', errData);
             } catch (e) {
                 errorMsg = `Erreur serveur (${response.status})`;
+                console.error('❌ Erreur parsing réponse:', e);
             }
             throw new Error(errorMsg);
         }
@@ -280,6 +331,11 @@ async function handleConversion() {
         // Récupérer le blob et créer l'URL de téléchargement
         const blob = await response.blob();
         downloadUrl = window.URL.createObjectURL(blob);
+
+        console.log('✅ Conversion réussie!', {
+            taille: formatFileSize(blob.size),
+            type: blob.type
+        });
 
         // Afficher les résultats
         showResults();
@@ -290,7 +346,10 @@ async function handleConversion() {
         document.getElementById('downloadBtn').dataset.filename = `${originalName}_converted.${ext}`;
 
     } catch (error) {
-        console.error('Conversion error:', error);
+        console.error('❌ Erreur conversion:', {
+            message: error.message,
+            stack: error.stack
+        });
         showError(error.message);
     } finally {
         submitBtn.disabled = false;
@@ -303,12 +362,16 @@ async function handleConversion() {
 // ========================================
 
 function showResults() {
+    console.log('🎉 Affichage des résultats');
+    
     document.getElementById('convertForm').style.display = 'none';
     document.getElementById('errorSection').style.display = 'none';
     document.getElementById('resultsSection').style.display = 'flex';
 
     const downloadBtn = document.getElementById('downloadBtn');
     downloadBtn.addEventListener('click', () => {
+        console.log('💾 Téléchargement:', downloadBtn.dataset.filename);
+        
         const a = document.createElement('a');
         a.href = downloadUrl;
         a.download = downloadBtn.dataset.filename || 'converted_file';
@@ -319,6 +382,8 @@ function showResults() {
 }
 
 function showError(message) {
+    console.error('🚨 Erreur affichée:', message);
+    
     document.getElementById('convertForm').style.display = 'none';
     document.getElementById('resultsSection').style.display = 'none';
     document.getElementById('errorSection').style.display = 'flex';
@@ -330,6 +395,8 @@ function showError(message) {
 // ========================================
 
 function resetConverter() {
+    console.log('🔄 Réinitialisation');
+    
     selectedCategory = null;
     selectedFile = null;
     selectedFormat = null;
@@ -368,9 +435,19 @@ function formatFileSize(bytes) {
 // ========================================
 
 window.addEventListener('online', () => {
-    console.log('Connexion rétablie');
+    console.log('🟢 Connexion rétablie');
 });
 
 window.addEventListener('offline', () => {
+    console.log('🔴 Connexion perdue');
     showError('Connexion perdue. Vérifiez votre réseau.');
 });
+
+// ========================================
+// Debug Mode
+// ========================================
+
+console.log('%c🚀 OmniConvert v2 - Debug Mode Actif', 'color: blue; font-weight: bold;');
+console.log('%cAPI URL: ' + API_URL, 'color: green;');
+console.log('%cHostname: ' + window.location.hostname, 'color: green;');
+console.log('%cOrigin: ' + window.location.origin, 'color: green;');
