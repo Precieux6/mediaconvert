@@ -67,18 +67,6 @@ app.add_middleware(
 )
 
 # ========================================
-# Servir les fichiers statiques (Frontend)
-# ========================================
-
-# Créer un répertoire "static" s'il n'existe pas
-# ou utiliser la racine du projet si les fichiers y sont
-static_dir = "."  # Les fichiers index.html, style.css, script.js sont à la racine
-
-if os.path.isdir(static_dir):
-    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
-    logger.info(f"Static files mounted from: {static_dir}")
-
-# ========================================
 # Configuration Uploads
 # ========================================
 
@@ -103,17 +91,8 @@ def health_check():
         "message": "OmniConvert API est opérationnel"
     }
 
-@app.get("/")
-def read_root():
-    """Endpoint racine"""
-    return {
-        "message": "Bienvenue sur l'API OmniConvert v2",
-        "docs": "/docs",
-        "health": "/health"
-    }
-
 # ========================================
-# Endpoints de conversion
+# Endpoints de conversion API
 # ========================================
 
 @app.post("/convert/image")
@@ -138,7 +117,6 @@ async def convert_image(file: UploadFile = File(...), target_format: str = Form(
     output_path = os.path.join(UPLOAD_DIR, output_filename)
     
     try:
-        # Lire le fichier
         content = await file.read()
         
         if len(content) == 0:
@@ -155,14 +133,11 @@ async def convert_image(file: UploadFile = File(...), target_format: str = Form(
         
         logger.info(f"Image conversion started: {file.filename} -> {target_format}")
         
-        # Convertir l'image
         img = Image.open(input_path)
         
-        # Conversion RGB si nécessaire (pour JPG)
         if target_format in ["jpg", "jpeg"] and img.mode in ("RGBA", "LA", "P"):
             img = img.convert("RGB")
         
-        # Optimiser pour web si PNG ou WEBP
         if target_format in ["png", "webp"]:
             img.save(output_path, quality=85, optimize=True)
         else:
@@ -170,7 +145,6 @@ async def convert_image(file: UploadFile = File(...), target_format: str = Form(
         
         logger.info(f"Image conversion completed: {output_path}")
         
-        # Retourner le fichier
         return FileResponse(
             output_path,
             filename=f"{os.path.splitext(file.filename)[0]}_converted.{target_format}",
@@ -187,7 +161,6 @@ async def convert_image(file: UploadFile = File(...), target_format: str = Form(
         )
     
     finally:
-        # Nettoyer le fichier input
         if os.path.exists(input_path):
             try:
                 os.remove(input_path)
@@ -206,7 +179,6 @@ async def convert_office_to_pdf(file: UploadFile = File(...)):
     input_path = os.path.join(UPLOAD_DIR, f"{file_id}{ext}")
     
     try:
-        # Lire et écrire le fichier
         content = await file.read()
         
         if len(content) == 0:
@@ -223,7 +195,6 @@ async def convert_office_to_pdf(file: UploadFile = File(...)):
         
         logger.info(f"Office to PDF conversion started: {file.filename}")
         
-        # Vérifier que LibreOffice est disponible
         try:
             subprocess.run(["which", "libreoffice"], capture_output=True, check=True)
         except subprocess.CalledProcessError:
@@ -232,7 +203,6 @@ async def convert_office_to_pdf(file: UploadFile = File(...)):
                 detail="LibreOffice n'est pas installé sur le serveur"
             )
         
-        # Convertir avec LibreOffice
         cmd = [
             "libreoffice",
             "--headless",
@@ -304,7 +274,6 @@ async def convert_multimedia(file: UploadFile = File(...), target_format: str = 
     output_path = os.path.join(UPLOAD_DIR, output_filename)
     
     try:
-        # Lire et écrire le fichier
         content = await file.read()
         
         if len(content) == 0:
@@ -321,7 +290,6 @@ async def convert_multimedia(file: UploadFile = File(...), target_format: str = 
         
         logger.info(f"Multimedia conversion started: {file.filename} -> {target_format}")
         
-        # Vérifier que FFmpeg est disponible
         try:
             subprocess.run(["which", "ffmpeg"], capture_output=True, check=True)
         except subprocess.CalledProcessError:
@@ -330,7 +298,6 @@ async def convert_multimedia(file: UploadFile = File(...), target_format: str = 
                 detail="FFmpeg n'est pas installé sur le serveur"
             )
         
-        # Convertir avec FFmpeg (avec options optimisées)
         cmd = [
             "ffmpeg",
             "-i", input_path,
@@ -380,7 +347,6 @@ async def convert_multimedia(file: UploadFile = File(...), target_format: str = 
             except Exception as e:
                 logger.warning(f"Could not clean up input file: {e}")
 
-
 # ========================================
 # Gestion des erreurs globales
 # ========================================
@@ -399,6 +365,17 @@ async def general_exception_handler(request, exc):
         status_code=500,
         content={"detail": "Erreur interne du serveur"},
     )
+
+# ========================================
+# Servir les fichiers statiques (Frontend)
+# (PLAGÉ EN DERNIER POUR NE PAS BLOQUER L'API)
+# ========================================
+
+static_dir = "."
+
+if os.path.isdir(static_dir):
+    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+    logger.info(f"Static files mounted from: {static_dir}")
 
 # ========================================
 # Lancement
