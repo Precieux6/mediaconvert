@@ -3,41 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediaConvert - Convertisseur Média Universel</title>
+    <meta name="description" content="OmniConvert - Convertisseur universel de fichiers. Images, documents, audio et vidéo. 50+ formats supportés. Gratuit, sans inscription, ultrarapide.">
+    <meta name="keywords" content="convertisseur, images, PDF, audio, vidéo, formats">
+    <meta property="og:title" content="OmniConvert - Convertisseur Universel">
+    <meta property="og:description" content="Convertissez tout. Instantanément. Sans limites.">
+    <title>OmniConvert - Convertisseur Universel de Fichiers | Images, Documents, Audio, Vidéo</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <h1>⚡ MediaConvert</h1>
-            <p>Convertissez rapidement vos images, documents et fichiers multimédias.</p>
-        </header>
+    <!-- Navigation compacte -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">⚡ OmniConvert</div>
+            <p class="navbar-tagline">Conversion instantanée. 50+ formats.</p>
+        </div>
+    </nav>
 
-        <form id="convertForm" class="card">
-            <div class="form-group">
-                <label for="fileInput">Sélectionner un fichier :</label>
-                <input type="file" id="fileInput" required>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Convertissez tout.<br><span class="gradient-text">Instantanément.</span></h1>
+            <p class="hero-subtitle">Images · Documents · Audio & Vidéo — Tous les formats, zéro complications.</p>
+            <div class="hero-cta-section">
+                <button class="hero-cta" onclick="document.getElementById('categories').scrollIntoView({behavior: 'smooth'})">
+                    Commencer →
+                </button>
+            </div>
+            <p class="hero-features">✓ Sans inscription  ✓ Gratuit  ✓ Ultrarapide  ✓ Sécurisé</p>
+        </div>
+        <div class="hero-visual">
+            <div class="animation-container">
+                <div class="file-card file-card-1">
+                    <span class="file-icon">🖼️</span>
+                    <span class="file-ext">JPG</span>
+                </div>
+                <div class="file-card file-card-2">
+                    <span class="file-icon">📄</span>
+                    <span class="file-ext">PDF</span>
+                </div>
+                <div class="file-card file-card-3">
+                    <span class="file-icon">🎬</span>
+                    <span class="file-ext">MP4</span>
+                </div>
+                <div class="transformation-arrow">→</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Catégories -->
+    <section class="categories" id="categories">
+        <h2 class="section-title">Choisissez votre type de conversion</h2>
+        <div class="categories-grid">
+            
+            <!-- Carte Images -->
+            <div class="category-card" data-type="image">
+                <div class="card-header">
+                    <div class="card-icon">🖼️</div>
+                    <h3>Images</h3>
+                </div>
+                <p class="card-description">Convertissez vos images entre JPG, PNG, WEBP et AVIF. Idéal pour le web et les réseaux sociaux.</p>
+                <div class="card-formats">
+                    <span class="format-badge">JPG</span>
+                    <span class="format-badge">PNG</span>
+                    <span class="format-badge">WEBP</span>
+                    <span class="format-badge">AVIF</span>
+                </div>
+                <button class="card-cta">Convertir des images</button>
             </div>
 
-            <div class="form-group">
-                <label for="typeSelect">Type de conversion :</label>
-                <select id="typeSelect">
-                    <option value="image">Image (JPG, PNG, WEBP, AVIF)</option>
-                    <option value="office">Document Office (Excel / PPT) ➔ PDF</option>
-                    <option value="multimedia">Audio / Vidéo (MP4, MP3, WAV, AVI...)</option>
-                </select>
+            <!-- Carte Documents -->
+            <div class="category-card" data-type="office">
+                <div class="card-header">
+                    <div class="card-icon">📄</div>
+                    <h3>Documents</h3>
+                </div>
+                <p class="card-description">Convertissez Excel et PowerPoint en PDF. Sécurisez et partagez vos fichiers en quelques secondes.</p>
+                <div class="card-formats">
+                    <span class="format-badge">XLSX</span>
+                    <span class="format-badge">PPTX</span>
+                    <span class="format-badge">→ PDF</span>
+                </div>
+                <button class="card-cta">Convertir en PDF</button>
             </div>
 
-            <div class="form-group" id="formatGroup">
-                <label for="targetFormat">Format Cible :</label>
-                <input type="text" id="targetFormat" placeholder="ex: png, webp, mp3, mp4" value="png">
+            <!-- Carte Média -->
+            <div class="category-card" data-type="multimedia">
+                <div class="card-header">
+                    <div class="card-icon">🎬</div>
+                    <h3>Audio & Vidéo</h3>
+                </div>
+                <p class="card-description">Extrayez audio, recompressez vidéo. Convertissez entre MP4, MP3, WAV, AVI et plus.</p>
+                <div class="card-formats">
+                    <span class="format-badge">MP4</span>
+                    <span class="format-badge">MP3</span>
+                    <span class="format-badge">WAV</span>
+                    <span class="format-badge">+7</span>
+                </div>
+                <button class="card-cta">Convertir média</button>
             </div>
 
-            <button type="submit" id="submitBtn">Lancer la conversion</button>
-        </form>
+        </div>
+    </section>
 
-        <div id="status" class="status-box"></div>
-    </div>
+    <!-- Formulaire de conversion -->
+    <section class="converter-section" id="converterSection" style="display: none;">
+        <button class="back-btn" onclick="resetConverter()">← Retour aux catégories</button>
+        
+        <div class="converter-container">
+            <h2 class="converter-title" id="converterTitle">Images</h2>
+
+            <!-- Zone de drag & drop -->
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-content">
+                    <div class="drop-zone-icon">📁</div>
+                    <h3>Déposez votre fichier ici</h3>
+                    <p>ou <button class="link-btn" onclick="document.getElementById('fileInput').click()">cliquez pour parcourir</button></p>
+                    <input type="file" id="fileInput" style="display: none;">
+                </div>
+            </div>
+
+            <!-- Formulaire -->
+            <form id="convertForm" class="converter-form" style="display: none;">
+                <div class="file-info">
+                    <span class="file-info-name" id="fileInfoName">Fichier sélectionné</span>
+                    <button type="button" class="change-file-btn" onclick="document.getElementById('fileInput').click()">Changer</button>
+                </div>
+
+                <div class="format-selector" id="formatSelector">
+                    <label>Format cible :</label>
+                    <div class="format-options" id="formatOptions"></div>
+                    <input type="hidden" id="targetFormat">
+                </div>
+
+                <div class="progress-section" id="progressSection" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <p class="progress-text" id="progressText">⏳ Conversion en cours...</p>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">Lancer la conversion</button>
+            </form>
+
+            <!-- Résultats -->
+            <div id="resultsSection" style="display: none;" class="results-section">
+                <div class="success-badge">
+                    <span class="success-icon">✓</span>
+                    <p>Conversion réussie !</p>
+                </div>
+                <button class="download-btn" id="downloadBtn">
+                    ↓ Télécharger le fichier
+                </button>
+                <p class="results-tip">💡 Besoin d'une autre conversion ? <button class="link-btn" onclick="resetConverter()">Recommencer</button></p>
+            </div>
+
+            <!-- Erreurs -->
+            <div id="errorSection" style="display: none;" class="error-section">
+                <p class="error-message" id="errorMessage">Une erreur s'est produite</p>
+                <button type="button" class="link-btn" onclick="resetConverter()">Réessayer</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>OmniConvert © 2024 — Conversion rapide et sécurisée. Aucun upload conservé.</p>
+    </footer>
 
     <script src="script.js"></script>
 </body>
