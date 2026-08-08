@@ -2,16 +2,16 @@ services:
   - type: web
     name: omniconvert-api
     runtime: docker
-    region: frankfurt  # Changez selon votre région préférée (frankfurt, oregon, singapore, sydney)
+    region: frankfurt
     
     # Port et santé
     port: 8000
     healthCheckPath: /health
-    healthCheckInterval: 30  # secondes
-    healthCheckTimeout: 10   # secondes
+    healthCheckInterval: 30
+    healthCheckTimeout: 10
     
     # Ressources
-    plan: standard  # Changez à 'pro' pour plus de ressources
+    plan: standard
     
     # Environnement
     envVars:
@@ -22,16 +22,13 @@ services:
       - key: HOST
         value: "0.0.0.0"
       - key: MAX_FILE_SIZE
-        value: "524288000"  # 500MB
+        value: "524288000"
       - key: RENDER
         value: "true"
 
     # Auto-deploy depuis GitHub
     autoDeploy: true
     
-    # Timeouts
-    timeoutSeconds: 30
-    
     # Scaling
     minInstances: 1
-    maxInstances: 1  # Ajustez selon vos besoins
+    maxInstances: 1
