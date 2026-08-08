@@ -5,3 +5,4 @@ Pillow==10.2.0
 pillow-heif==0.15.0
 pymupdf==1.23.26
 python-dotenv==1.0.0
+static-ffmpeg
