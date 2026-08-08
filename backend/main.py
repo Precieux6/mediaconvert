@@ -3,6 +3,8 @@ import uuid
 import subprocess
 import shutil
 import logging
+import static_ffmpeg
+static_ffmpeg.add_paths()
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
