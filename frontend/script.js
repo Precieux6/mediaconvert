@@ -422,3 +422,24 @@ window.addEventListener('offline', () => {
 });
 
 console.log('%c🚀 OmniConvert v2 - Prêt', 'color: green; font-weight: bold;');
+
+// ========================================
+// GESTION DES MODALES (CONFIDENTIALITÉ & CGU)
+// ========================================
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.add('active');
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.remove('active');
+}
+
+// Fermer la modale au clic à l'extérieur
+window.onclick = function(event) {
+    if (event.target.classList.contains('modal-overlay')) {
+        event.target.classList.remove('active');
+    }
+};
