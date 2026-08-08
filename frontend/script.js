@@ -1,27 +1,21 @@
 // ========================================
-// Configuration API - CORRIGÉ POUR RENDER
+// Configuration API
 // ========================================
 
-// IMPORTANT: En production sur Render:
-// - Frontend: https://mediaconvert-xxx.onrender.com
-// - Backend: https://mediaconvert-xxx.onrender.com (même domaine!)
-// - PAS de :8000 en production
-
 const getAPIUrl = () => {
-    // Mode développement local
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    // Mode local ouvert directement depuis un fichier HTML
+    if (window.location.protocol === 'file:') {
         return 'http://localhost:8000';
     }
     
-    // Mode production (Render, Vercel, etc.)
-    // L'API est sur le MÊME domaine, donc pas besoin d'ajouter :8000
-    return window.location.origin;
+    // Serveur web, Docker ou Render (utilise le même domaine courant)
+    return '';
 };
 
 const API_URL = getAPIUrl();
 
 // Debug: afficher l'URL utilisée
-console.log('🌐 API URL détecté:', API_URL);
+console.log('🌐 API URL détecté:', API_URL || '(Relative URL)');
 console.log('🌍 Hostname:', window.location.hostname);
 
 // ========================================
@@ -91,7 +85,6 @@ function selectCategory(type) {
     
     console.log('📝 Sélection catégorie:', type);
     
-    // Récupérer les titres
     const titles = {
         image: 'Convertisseur d\'Images',
         office: 'Convertisseur de Documents',
@@ -100,7 +93,6 @@ function selectCategory(type) {
 
     document.getElementById('converterTitle').textContent = titles[type];
     
-    // Afficher les sections appropriées
     document.getElementById('categories').style.display = 'none';
     document.getElementById('converterSection').style.display = 'block';
     document.getElementById('convertForm').style.display = 'none';
@@ -109,10 +101,8 @@ function selectCategory(type) {
     document.getElementById('dropZone').style.display = 'flex';
     document.getElementById('progressSection').style.display = 'none';
     
-    // Construire les options de format
     buildFormatOptions(type);
     
-    // Scroll vers le formulaire
     setTimeout(() => {
         document.getElementById('converterSection').scrollIntoView({ behavior: 'smooth' });
     }, 100);
@@ -151,12 +141,10 @@ function buildFormatOptions(type) {
 function selectFormat(format, element) {
     console.log('🎯 Format sélectionné:', format);
     
-    // Retirer active de tous
     document.querySelectorAll('.format-option').forEach(opt => {
         opt.classList.remove('active');
     });
     
-    // Ajouter active à l'élément sélectionné
     element.classList.add('active');
     selectedFormat = format;
     document.getElementById('targetFormat').value = format;
@@ -221,7 +209,6 @@ function handleFileSelect(file) {
         type: file.type
     });
     
-    // Afficher le formulaire et masquer la drop zone
     document.getElementById('dropZone').style.display = 'none';
     document.getElementById('convertForm').style.display = 'flex';
     document.getElementById('fileInfoName').textContent = `📎 ${file.name} (${formatFileSize(file.size)})`;
@@ -279,7 +266,6 @@ async function handleConversion() {
             categorie: selectedCategory
         });
 
-        // Simuler la progression
         let progress = 10;
         const progressInterval = setInterval(() => {
             if (progress < 90) {
@@ -288,21 +274,16 @@ async function handleConversion() {
             }
         }, 200);
 
-        // Appel API avec timeout
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
             controller.abort();
             console.error('⏱️ Timeout API (5min)');
-        }, 300000); // 5 minutes
+        }, 300000);
 
         const response = await fetch(fullURL, {
             method: 'POST',
             body: formData,
-            signal: controller.signal,
-            headers: {
-                // Ne pas définir Content-Type pour multipart/form-data
-                // Le navigateur le fera automatiquement
-            }
+            signal: controller.signal
         });
 
         clearTimeout(timeoutId);
@@ -328,7 +309,6 @@ async function handleConversion() {
             throw new Error(errorMsg);
         }
 
-        // Récupérer le blob et créer l'URL de téléchargement
         const blob = await response.blob();
         downloadUrl = window.URL.createObjectURL(blob);
 
@@ -337,10 +317,8 @@ async function handleConversion() {
             type: blob.type
         });
 
-        // Afficher les résultats
         showResults();
 
-        // Définir le nom du fichier
         const originalName = selectedFile.name.split('.')[0];
         const ext = selectedCategory === 'office' ? 'pdf' : selectedFormat;
         document.getElementById('downloadBtn').dataset.filename = `${originalName}_converted.${ext}`;
@@ -443,11 +421,4 @@ window.addEventListener('offline', () => {
     showError('Connexion perdue. Vérifiez votre réseau.');
 });
 
-// ========================================
-// Debug Mode
-// ========================================
-
-console.log('%c🚀 OmniConvert v2 - Debug Mode Actif', 'color: blue; font-weight: bold;');
-console.log('%cAPI URL: ' + API_URL, 'color: green;');
-console.log('%cHostname: ' + window.location.hostname, 'color: green;');
-console.log('%cOrigin: ' + window.location.origin, 'color: green;');
+console.log('%c🚀 OmniConvert v2 - Prêt', 'color: green; font-weight: bold;');
