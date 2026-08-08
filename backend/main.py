@@ -36,30 +36,9 @@ app = FastAPI(
 # Configuration CORS
 # ========================================
 
-allowed_origins = [
-    "http://localhost:3000",
-    "http://localhost:8080",
-    "http://localhost:5173",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:8080",
-]
-
-# En production, récupérer le domaine Render
-if os.getenv('RENDER') == 'true':
-    render_external_url = os.getenv('RENDER_EXTERNAL_URL')
-    if render_external_url:
-        allowed_origins.append(render_external_url)
-        logger.info(f"Render external URL: {render_external_url}")
-else:
-    # Mode développement : permettre localhost
-    allowed_origins.extend([
-        "http://localhost",
-        "http://127.0.0.1"
-    ])
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
