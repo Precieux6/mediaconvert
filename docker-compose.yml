@@ -2,10 +2,22 @@ version: '3.8'
 
 services:
   backend:
-    build: ./backend
-    container_name: mediaconvert_backend
+    build: .
+    container_name: omniconvert_backend
     ports:
       - "8000:8000"
     volumes:
-      - ./backend/uploads:/app/uploads
-    restart: always
+      - ./uploads:/app/uploads
+      - ./main.py:/app/main.py
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+      - ENVIRONMENT=development
+      - UPLOAD_DIR=uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
