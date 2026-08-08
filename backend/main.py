@@ -271,23 +271,20 @@ async def convert_multimedia(file: UploadFile = File(...), target_format: str = 
         
         logger.info(f"Multimedia conversion started: {file.filename} -> {target_format}")
         
-        try:
-            subprocess.run(["which", "ffmpeg"], capture_output=True, check=True)
-        except subprocess.CalledProcessError:
-            raise HTTPException(
-                status_code=503,
-                detail="FFmpeg n'est pas installé sur le serveur"
-            )
+        # Construction dynamique de la commande FFmpeg selon le format cible
+        cmd = ["ffmpeg", "-y", "-i", input_path]
+
+        # Si le format de destination est un format AUDIO (ex: mp3, wav)
+        if target_format in ["mp3", "wav", "aac", "ogg", "m4a", "flac"]:
+            cmd.extend(["-vn"])  # Désactive le flux vidéo
+            if target_format == "mp3":
+                cmd.extend(["-acodec", "libmp3lame", "-q:a", "2"])
+        # Si le format de destination est un format VIDÉO (ex: mp4, avi, mkv)
+        elif target_format in ["mp4", "avi", "mov", "mkv", "flv"]:
+            if target_format == "mp4":
+                cmd.extend(["-c:v", "libx264", "-c:a", "aac", "-preset", "fast"])
         
-        cmd = [
-            "ffmpeg",
-            "-i", input_path,
-            "-c:v", "libx264" if target_format in ["mp4"] else "copy",
-            "-c:a", "aac" if target_format in ["mp4"] else "copy",
-            "-preset", "fast",
-            "-y",
-            output_path
-        ]
+        cmd.append(output_path)
         
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
         
