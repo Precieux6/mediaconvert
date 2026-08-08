@@ -36,9 +36,14 @@ COPY --from=builder /root/.local /root/.local
 # Ajouter le local pip bin au PATH
 ENV PATH=/root/.local/bin:$PATH
 
-# Copier les fichiers de l'application
+# Copier les fichiers de l'application backend
 COPY main.py .
 COPY requirements.txt .
+
+# Copier les fichiers frontend (HTML, CSS, JS)
+COPY index.html .
+COPY style.css .
+COPY script.js .
 
 # Créer le répertoire uploads
 RUN mkdir -p uploads
