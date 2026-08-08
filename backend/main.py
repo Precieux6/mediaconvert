@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from PIL import Image
 import mimetypes
+from fastapi.responses import HTMLResponse
 
 # ========================================
 # Configuration Logging
@@ -64,6 +65,18 @@ app.add_middleware(
     allow_headers=["*"],
     max_age=3600,
 )
+
+# ========================================
+# Servir les fichiers statiques (Frontend)
+# ========================================
+
+# Créer un répertoire "static" s'il n'existe pas
+# ou utiliser la racine du projet si les fichiers y sont
+static_dir = "."  # Les fichiers index.html, style.css, script.js sont à la racine
+
+if os.path.isdir(static_dir):
+    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+    logger.info(f"Static files mounted from: {static_dir}")
 
 # ========================================
 # Configuration Uploads
