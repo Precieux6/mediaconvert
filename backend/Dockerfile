@@ -1,18 +1,54 @@
-FROM python:3.10-slim
-
-# Installation automatisée des paquets système nécessaires (FFmpeg & LibreOffice)
-RUN apt-get update && apt-get install -y --no-install-recommends     ffmpeg     libreoffice     && rm -rf /var/lib/apt/lists/*
+# ========================================
+# Build stage
+# ========================================
+FROM python:3.11-slim as builder
 
 WORKDIR /app
 
-# Variable d'environnement pour Python
-ENV PYTHONUNBUFFERED=1
+# Installer les dépendances de build
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
+# Copier et installer les dépendances Python
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --user --no-cache-dir -r requirements.txt
 
-COPY . .
+# ========================================
+# Runtime stage
+# ========================================
+FROM python:3.11-slim
 
+WORKDIR /app
+
+# Installer les dépendances système (FFmpeg, LibreOffice, etc.)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    libreoffice \
+    libreoffice-calc \
+    libreoffice-impress \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copier les packages Python du builder
+COPY --from=builder /root/.local /root/.local
+
+# Ajouter le local pip bin au PATH
+ENV PATH=/root/.local/bin:$PATH
+
+# Copier les fichiers de l'application
+COPY main.py .
+COPY requirements.txt .
+
+# Créer le répertoire uploads
+RUN mkdir -p uploads
+
+# Exposer le port
 EXPOSE 8000
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Commande de démarrage
+CMD ["python", "main.py"]
