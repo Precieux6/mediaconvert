@@ -4,12 +4,12 @@
 
 const getAPIUrl = () => {
     // Mode local ouvert directement depuis un fichier HTML
-    if (window.location.protocol === 'file:') {
+    if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         return 'http://localhost:8000';
     }
     
-    // Serveur web, Docker ou Render (utilise le même domaine courant)
-    return '';
+    // Pointage direct vers le backend FastAPI sur Render
+    return 'https://mediaconvert-s0nb.onrender.com';
 };
 
 const API_URL = getAPIUrl();
